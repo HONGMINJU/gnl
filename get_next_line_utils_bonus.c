@@ -1,67 +1,114 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aymoulou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/23 17:47:29 by aymoulou          #+#    #+#             */
+/*   Updated: 2021/12/06 20:47:14 by aymoulou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line_bonus.h"
 
-size_t	ft_strlen(const char *s)
+unsigned int	ft_strlen(char *str)
 {
-	size_t	len;
+	unsigned int	i;
 
-	len = 0;
-	while (*s)
+	if (str)
 	{
-		s++;
-		len++;
+		i = 0;
+		while (str[i])
+			i++;
+		return (i);
 	}
-	return (len);
+	return (-1);
 }
 
-char	*ft_strchr(const char *s, int c)
+char	*ft_strdup(char *s)
 {
-	size_t	len;
+	int		len;
+	int		i;
+	char	*tmp;
+	char	*r;
 
-	len = ft_strlen(s);
-	len++;
-	while (len--)
+	if (s)
 	{
-		if (*s == (char)c)
-			return ((char *)s);
-		s++;
+		i = -1;
+		len = ft_strlen(s);
+		tmp = malloc(len + 1);
+		if (!tmp)
+			return (0x0);
+		r = tmp;
+		while (s[++i])
+		{
+			*(tmp++) = s[i];
+		}
+		*tmp = 0;
+		return (r);
 	}
-	return (NULL);
+	return (0x0);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
-	size_t		len1;
-	size_t		len2;
-	char		*ret;
-	const char	*temp;
+	int		i;
+	char	*str;
+	char	*r;
 
-	len1 = ft_strlen(s1);
-	len2 = ft_strlen(s2);
-	temp = s1;
-	if (!(ret = (char *)malloc(sizeof(char) * (len1 + len2 + 1))))
-		return (0);
-	ft_memcpy(ret, s1, len1);
-	ft_memcpy(ret + len1, s2, len2);
-	ret[len1 + len2] = '\0';
-	free((char *)temp);
-	return (ret);
+	str = 0x0;
+	r = 0x0;
+	if (!s1 || !s2)
+		return (0x0);
+	str = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (str)
+	{
+		r = str;
+		i = -1;
+		while (s1[++i])
+			*(str++) = s1[i];
+		i = -1;
+		while (s2[++i])
+			*(str++) = s2[i];
+		*str = 0;
+		return (r);
+	}
+	return (0x0);
 }
 
-char	*ft_strdup(const char *s)
+char	*ft_strchr(char *str, char c)
 {
-	size_t	s_len;
-	size_t	idx;
-	char	*temp;
+	int	i;
 
-	s_len = ft_strlen(s);
-	idx = 0;
-	if (!(temp = (char *)malloc(sizeof(char) * (s_len + 1))))
-		return (NULL);
-	while (s[idx])
+	i = 0;
+	while (str[i])
 	{
-		temp[idx] = s[idx];
-		idx++;
+		if (str[i] == c)
+			return (&str[i]);
+		i++;
 	}
-	temp[idx] = '\0';
-	return (temp);
+	return (0x0);
+}
+
+char	*ft_substr(char *s, unsigned int start, unsigned int end)
+{
+	char	*str;
+	char	*r;
+
+	r = 0x0;
+	if (!s || start >= ft_strlen(s))
+		return (0x0);
+	str = malloc(end - start + 1);
+	r = str;
+	if (!str)
+		return (0x0);
+	while (start < end)
+	{
+		*str = s[start];
+		start++;
+		str++;
+	}
+	*str = 0;
+	return (r);
 }

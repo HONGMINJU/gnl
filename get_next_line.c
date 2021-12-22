@@ -1,41 +1,79 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/21 18:26:34 by marvin            #+#    #+#             */
+/*   Updated: 2021/12/21 18:26:34 by marvin           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
-t_list			*ft_lstnew(int fd)
+static char	*ft_append(char **s, char **line)
 {
-	t_list *node;
+	int		len;
+	char	*tmp;
 
-	if (!(node = (t_list *)malloc(sizeof(t_list))))
-		return (NULL);
-	node->fd = fd;
-	node->contents = NULL;
-	node->next = NULL;
-	return (node);
+	len = 0;
+	while ((*s)[len] != '\n' && (*s)[len] != '\0')
+		len++;
+	if ((*s)[len] == '\n')
+	{
+		*line = ft_substr(*s, 0, len + 1);
+		tmp = ft_strdup(&(*s)[len + 1]);
+		free(*s);
+		*s = tmp;
+		if ((*s)[0] == 0)
+		{
+			free(*s);
+			*s = 0;
+		}
+	}
+	else
+	{
+		*line = ft_strdup(*s);
+		free(*s);
+		*s = 0;
+	}
+	return (*line);
 }
 
-int				get_next_line(int fd, char **line)
+static char	*ft_line(char **back_up, char **line, int ret, int fd)
 {
-	static t_list	*head;
-	t_list			*backup_buf;
-	char			*buf;
-	ssize_t			read_size;
+	if (ret <= 0 && back_up[fd] == NULL)
+		return (NULL);
+	else
+		return (ft_append(&back_up[fd], line));
+}
 
-	if (fd < 0 || line == NULL)
-		return (-1);
-	if (!(buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1))))
-		return (-1);
-	backup_buf = find_buf(&head, fd);
-	while ((read_size = read(fd, buf, BUFFER_SIZE)) > 0)
+char	*get_next_line(int fd)
+{
+	int			read_size;
+	static char	*back_up[10240];
+	char		buf[BUFFER_SIZE + 1];
+	char		*tmp;
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	read_size = read(fd, buf, BUFFER_SIZE);
+	while (read_size > 0)
 	{
-		if (backup_buf->contents == NULL)
-			backup_buf->contents = ft_strdup(buf);
+		buf[read_size] = '\0';
+		if (back_up[fd] == 0)
+			back_up[fd] = ft_strdup(buf);
 		else
-			backup_buf->contents = ft_strjoin(backup_buf->contents, buf);
-		if (ft_strchr(backup_buf->contents, '\n'))
+		{
+			tmp = ft_strjoin(back_up[fd], buf);
+			free(back_up[fd]);
+			back_up[fd] = tmp;
+		}
+		if (ft_strchr(back_up[fd], '\n'))
 			break ;
+		read_size = read(fd, buf, BUFFER_SIZE);
 	}
-	free(buf);
-	if (read_size >= 0)
-		return (check_line(&head, fd, line));
-	ft_lstdelone(&head, fd);
-	return (-1);
+	return (ft_line(back_up, &line, read_size, fd));
 }
