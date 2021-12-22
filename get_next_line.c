@@ -5,43 +5,43 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/12/21 18:26:34 by marvin            #+#    #+#             */
-/*   Updated: 2021/12/21 18:26:34 by marvin           ###   ########.fr       */
+/*   Created: 2021/12/22 16:27:47 by marvin            #+#    #+#             */
+/*   Updated: 2021/12/22 16:27:47 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*ft_append(char **s, char **line)
+static char	*ft_append(char **back_up, char **line)
 {
 	int		len;
 	char	*tmp;
 
 	len = 0;
-	while ((*s)[len] != '\n' && (*s)[len] != '\0')
+	while ((*back_up)[len] != '\n' && (*back_up)[len] != '\0')
 		len++;
-	if ((*s)[len] == '\n')
+	if ((*back_up)[len] == '\n')
 	{
-		*line = ft_substr(*s, 0, len + 1);
-		tmp = ft_strdup(&(*s)[len + 1]);
-		free(*s);
-		*s = tmp;
-		if ((*s)[0] == 0)
+		*line = ft_substr(*back_up, 0, len + 1);
+		tmp = ft_strdup(&(*back_up)[len + 1]);
+		free(*back_up);
+		*back_up = tmp;
+		if ((*back_up)[0] == 0)
 		{
-			free(*s);
-			*s = 0;
+			free(*back_up);
+			*back_up = 0;
 		}
 	}
 	else
 	{
-		*line = ft_strdup(*s);
-		free(*s);
-		*s = 0;
+		*line = ft_strdup(*back_up);
+		free(*back_up);
+		*back_up = 0;
 	}
 	return (*line);
 }
 
-static char	*ft_line(char **back_up, char **line, int ret, int fd)
+static char	*check_line(char **back_up, char **line, int ret, int fd)
 {
 	if (ret <= 0 && back_up[fd] == NULL)
 		return (NULL);
@@ -75,5 +75,5 @@ char	*get_next_line(int fd)
 			break ;
 		read_size = read(fd, buf, BUFFER_SIZE);
 	}
-	return (ft_line(back_up, &line, read_size, fd));
+	return (check_line(back_up, &line, read_size, fd));
 }
